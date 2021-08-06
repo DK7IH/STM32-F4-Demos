@@ -20,14 +20,14 @@
 int main(void);
 
 //Sine wave table 0 <= Phi < 360°
-uint16_t wave[] = {2048, 2084, 2119, 2155, 2191, 2226, 2262, 2298, 2333, 2368, 2404, 2439, 
+uint16_t wave[360] = {2048, 2084, 2119, 2155, 2191, 2226, 2262, 2298, 2333, 2368, 2404, 2439, 
 	               2474, 2509, 2543, 2578, 2613, 2647, 2681, 2715, 2748, 2782, 2815, 2848, 
 	               2881, 2914, 2946, 2978, 3009, 3041, 3072, 3103, 3133, 3163, 3193, 3223, 
 	               3252, 3281, 3309, 3337, 3364, 3392, 3418, 3445, 3471, 3496, 3521, 3546, 
 	               3570, 3594, 3617, 3640, 3662, 3684, 3705, 3726, 3746, 3766, 3785, 3803, 
 	               3822, 3839, 3856, 3873, 3889, 3904, 3919, 3933, 3947, 3960, 3972, 3984, 
 	               3996, 4007, 4017, 4026, 4035, 4044, 4051, 4058, 4065, 4071, 4076, 4081, 
-	               4085, 4088, 4091, 4093, 4095, 4096, 4096, 4096, 4095, 4093, 4091, 4088, 
+	               4085, 4088, 4091, 4093, 4094, 4094, 4095, 4095, 4094, 4093, 4091, 4088, 
 	               4085, 4081, 4076, 4071, 4065, 4058, 4051, 4044, 4035, 4026, 4017, 4007, 
 	               3996, 3984, 3972, 3960, 3947, 3933, 3919, 3904, 3889, 3873, 3856, 3839, 
 	               3822, 3803, 3785, 3766, 3746, 3726, 3705, 3684, 3662, 3640, 3617, 3594, 
@@ -57,7 +57,7 @@ uint16_t wave[] = {2048, 2084, 2119, 2155, 2191, 2226, 2262, 2298, 2333, 2368, 2
 int main(void)
 {
 	int32_t t = 0;
-    uint32_t ti = 360; //Delay time in Milliseconds * 360 (full circle of sine wave)
+    uint32_t ti = 150; //Delay time in Microseconds
     
     //////////////////////////////////////////////
     // Set SystemClock to 168 MHz with 8 MHz HSE
@@ -71,7 +71,7 @@ int main(void)
     RCC->PLLCFGR |= 4 << RCC_PLLCFGR_PLLM_Pos;  // -> f.VCO.in = 8MHz / 4 = 2MHz
                                                 
     RCC->PLLCFGR &= ~RCC_PLLCFGR_PLLN;
-    RCC->PLLCFGR |= 168 << RCC_PLLCFGR_PLLN_Pos; //PLL-N: f.VCO.out = f.VCO.in * 100 = 336MHz
+    RCC->PLLCFGR |= 168 << RCC_PLLCFGR_PLLN_Pos; //PLL-N: f.VCO.out = f.VCO.in * 168 = 336MHz
     
     RCC->PLLCFGR &= ~RCC_PLLCFGR_PLLP;          //PLL-P: Main PLL (PLL) division factor for main system clock
                                                 //f.PLL.output.clock = f.VCO.out / 2 = 168MHz
@@ -110,7 +110,6 @@ int main(void)
  	TIM2->CR1 = 0;                    //Reset register
 	TIM2->SR = 0;                     //Clear the update event flag
 	TIM2->PSC = 168;                  //Set prescaler to 1MHz
-    TIM2->ARR = 0xFFFF;               //Set delay
     TIM2->CR1 |= (1 << 0);            //Start the timer counter 
     
     while(1)

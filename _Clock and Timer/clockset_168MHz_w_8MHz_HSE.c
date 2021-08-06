@@ -59,7 +59,7 @@ int main(void)
     RCC->PLLCFGR |= 4 << RCC_PLLCFGR_PLLM_Pos;  // -> f.VCO.in = 8MHz / 4 = 2MHz
                                                 
     RCC->PLLCFGR &= ~RCC_PLLCFGR_PLLN;
-    RCC->PLLCFGR |= 168 << RCC_PLLCFGR_PLLN_Pos; //PLL-N: f.VCO.out = f.VCO.in * 100 = 336MHz
+    RCC->PLLCFGR |= 168 << RCC_PLLCFGR_PLLN_Pos; //PLL-N: f.VCO.out = f.VCO.in * 168 = 336MHz
     
     RCC->PLLCFGR &= ~RCC_PLLCFGR_PLLP;          //PLL-P: Main PLL (PLL) division factor for main system clock
                                                 //f.PLL.output.clock = f.VCO.out / 2 = 168MHz

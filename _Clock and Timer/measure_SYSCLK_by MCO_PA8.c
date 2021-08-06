@@ -8,7 +8,7 @@
 /*  Last change:      2021-07-06                                 */
 ///////////////////////////////////////////////////////////////////
 
-//This demo measures SYSCLK speed on Pin PA8 divides by 2
+//This demo measures SYSCLK speed to Pin PA8 divide by 2
 
 #include "stm32f4xx.h"
 

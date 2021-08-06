@@ -12,6 +12,7 @@
 ///////////////////////////////////////////////////////////////////
 //Purpose: This demonstration uses Timer2 to generate a 1kHz signal
 //used for a delay in Milliseconds
+
 #include "stm32f4xx.h"
 #include "system_stm32f4xx.h"
 #include <math.h>

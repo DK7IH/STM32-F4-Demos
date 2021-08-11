@@ -50,7 +50,7 @@ int main(void)
     //////////////////////////////////////////////
     // Set SystemClock to 100 MHz with 8 MHz HSE
     //////////////////////////////////////////////
-    FLASH->ACR |= FLASH_ACR_LATENCY_2WS;        //2 wait state for 96 MHz
+    FLASH->ACR |= 0b010;                         //2 wait state for 100 MHz
     RCC->CR |= (1 << 16);                        //Activate external clock (HSE: 8 MHz)
     while ((RCC->CR & (1 << 17)) == 0);          //Wait until HSE is ready
     

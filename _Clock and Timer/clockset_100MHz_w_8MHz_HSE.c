@@ -12,7 +12,6 @@
 
 #include "stm32f4xx.h"
 #include "system_stm32f4xx.h"
-#include <stdlib.h> 
 
   ////////////
  //  MISC  //
@@ -59,7 +58,7 @@ int main(void)
     RCC->PLLCFGR |= (1 << 22);                  //PLL source is HSE
     
                                                 //Set PLLM
-    RCC->PLLCFGR &= ~0x3F;                      //1st Reset bits first
+    RCC->PLLCFGR &= ~0x3F;                      //1st Reset bits
     RCC->PLLCFGR |= 4;                          //2nd define VCO input frequency = PLL input clock frequency (f.HSE) / PLLM with 2 ≤ PLLM ≤ 63 
                                                 //-> f.VCO.in = 8MHz / 4 = 2MHz
                                                 

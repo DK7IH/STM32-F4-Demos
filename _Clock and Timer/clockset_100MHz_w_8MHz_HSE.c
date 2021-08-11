@@ -42,10 +42,10 @@ int main(void)
 	//Turn on the GPIOC peripheral
     //RCC->AHB1ENR |= RCC_AHB1ENR_GPIOCEN; //RCC->AHB1ENR |= (1<<0);
     
-    //Turn on the GPIOD peripheral for LED
-    RCC->AHB1ENR |= RCC_AHB1ENR_GPIOEEN; //RCC->AHB1ENR |= (1<<0);
-    GPIOE->MODER |= (1 << (0 << 1));	
-    GPIOE->ODR |= (1 << 0);
+    //Turn on the GPIOD peripheral for LED 
+    RCC->AHB1ENR |= (1 << 4);           //Enable GPIOE   
+    GPIOE->MODER |= (1 << (0 << 1));	//Set pin PE0 as output
+    GPIOE->ODR |= (1 << 0);             //Reset data register out
     
     
     //////////////////////////////////////////////

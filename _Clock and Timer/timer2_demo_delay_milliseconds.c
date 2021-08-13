@@ -80,23 +80,27 @@ int main(void)
         
     //Enable TIM2 clock (bit0)
     RCC->APB1ENR |= (1 << 0);
-    
+        
     //Timer calculation
     //Timer update frequency = TIM_CLK/(TIM_PSC+1)/(TIM_ARR + 1) 
-    TIM2->PSC = 100000; //Dive system clock (f=100MHz) by 100000 -> update frequency = 1000/s
-    TIM2->ARR = 500;    //Define overrun after 500ms
+    TIM2->PSC = 100000; //Divide system clock (f=100MHz) by 100000 -> update frequency = 1000/s
+    TIM2->ARR = 500;    //Define timer overrun based on auto-reload-register to happen after 500ms
 
-    //Update Interrupt Enable
-    TIM2->DIER |= (1 << 0);
-
-    NVIC_SetPriority(TIM2_IRQn, 2); //Priority level 2
+    //Interrupt definition
+    TIM2->DIER |= (1 << 0);         //Update of Interrupt enable
+    NVIC_SetPriority(TIM2_IRQn, 2); //Priority level 2 for this event
     NVIC_EnableIRQ(TIM2_IRQn);      //Enable TIM2 IRQ from NVIC
 
-    
-    TIM2->CR1 |= (1 << 0);           //Enable Timer 2 module (CEN, bit0)
+    TIM2->CR1 |= (1 << 0);           //Enable Timer 2 (CEN, bit0)
 
     while(1)
     {
+		if(TIM2->CNT == 500)
+		{
+			GPIOD->ODR ^= (1 << 15);     //Blue LED
+			TIM2->CNT = 0;
+		}	
+		
     }
 	
 	return 0;

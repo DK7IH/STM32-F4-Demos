@@ -8,7 +8,7 @@
 /*  Author:           Peter Baier  (DK7IH)                       */
 /*  Last change:      JUL 2021                                   */
 ///////////////////////////////////////////////////////////////////
-//TIM2 is configurted to count to 500ms toggling the blue LED so
+//TIM2 is configurated toggling the blue LED evry 500ms so
 //that this produces a 1 second blink
 #include "stm32f4xx.h"
 #include "system_stm32f4xx.h"

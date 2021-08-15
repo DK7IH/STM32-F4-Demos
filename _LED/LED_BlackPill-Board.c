@@ -28,10 +28,13 @@ static void delay (unsigned int time)
 
 int main(void)
 {
-	//Turn on the GPIOA peripheral for LED
-    RCC->AHB1ENR |= RCC_AHB1ENR_GPIOCEN; //RCC->AHB1ENR |= (1<<0);
-	GPIOC->MODER |= (1 << (13 << 1));	
-    
+	//////////////////////////////////////////
+    // Setup LED
+    //////////////////////////////////////////
+	//Turn on the GPIOC peripheral for LED
+    RCC->AHB1ENR |= (1 << 2); 
+	GPIOC->MODER |= (1 << (13 << 1));	//Set PC13 for output
+	
     while(1)
     { 			    
         GPIOC->ODR |= (1 << 13);

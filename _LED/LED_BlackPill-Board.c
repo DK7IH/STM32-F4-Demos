@@ -30,7 +30,6 @@ int main(void)
 {
 	//Turn on the GPIOA peripheral for LED
     RCC->AHB1ENR |= RCC_AHB1ENR_GPIOCEN; //RCC->AHB1ENR |= (1<<0);
-
 	GPIOC->MODER |= (1 << (13 << 1));	
     
     while(1)

@@ -242,22 +242,6 @@ void lcd_putchar(int, int, int, int, int, int);
 void lcd_putstring(int, int, char*, int, int, int);
 void lcd_putnumber(int, int, long, int, int, int, int);
 
-//Extended LCD functions
-void show_frequency(long, int, int);
-void show_mem_number(int);
-void show_sideband(int, int);
-void show_voltage(int);
-void show_temp(int);
-void show_vfo(int, int);
-void show_split(int, int);
-void show_scan_status(int, int);
-void show_tone(int, int);
-void show_agc(int, int);
-void draw_meter_scale(int, int);
-void reset_smax(void);
-void smeter(int, int);
-void show_msg(char*, int);
-
 //STRING FUNCTIONS
 int int2asc(long, int, char*, int);
 int strlen(char *s);

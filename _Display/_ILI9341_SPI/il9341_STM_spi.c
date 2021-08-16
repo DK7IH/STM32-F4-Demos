@@ -669,7 +669,7 @@ int main(void)
     lcd_init();
     lcd_cls(bcolor);
     lcd_putstring(0, 120, (char*) "DK7IH STM32 SPI demo with", 1, YELLOW, bcolor);
-    lcd_putstring(0, 100, (char*) "IL9341 (C) 2021", 1, WHITE, bcolor);
+    lcd_putstring(0, 100, (char*) "ILI9341 (C) 2021", 1, WHITE, bcolor);
     lcd_putstring(0, 60, (char*) "73 de DK7IH!", 2, LIGHTGREEN, bcolor);
     
     while(1)

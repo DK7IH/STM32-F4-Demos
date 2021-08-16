@@ -240,6 +240,7 @@ void lcd_cls(int);
 void lcd_draw_pixel(int);
 void lcd_putchar(int, int, int, int, int, int);
 void lcd_putstring(int, int, char*, int, int, int);
+void lcd_putnumber(int, int, long, int, int, int, int);
 
 //Extended LCD functions
 void show_frequency(long, int, int);

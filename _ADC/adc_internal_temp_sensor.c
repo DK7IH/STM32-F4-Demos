@@ -19,7 +19,6 @@
   ///////////////////
  //  LCD-Display  //
 ///////////////////
-// PIN definitions of Nokia 5110 lines on PORT A
 #define LCDGPIO GPIOA
 #define LCD_D0 0 
 #define LCD_D1 1 

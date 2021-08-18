@@ -419,10 +419,12 @@ int main(void)
 		ADC1->CR2 |=  (1 << 30); //Start 1 conversion SWSTART
 		if(ADC1->SR & (1 << 1)) //Is EOC (End of Conversion) bit set ?
 		{
-			temp = ADC1->DR; //(int16_t)(ADC1->DR - 0.76)/0.25 + 25;
+			ADC1->CR2 |=  (1 << 30);       //Start 1st conversion SWSTART
+            while(!(ADC1->SR & (1 << 1))); //Wait until conversion is complete
+            temp = ADC1->DR;               //Read value from register (raw value)
 						
 			lcd_putnumber(2, 0, temp, -1, -1, 'l', 0);
-			GPIOC->ODR &= ~(1 << 13);            //LED on
+			GPIOC->ODR &= ~(1 << 13);           //LED on
 			delay_ms(100);
 			GPIOC->ODR |= (1 << 13);            //LED off
 			delay_ms(100);

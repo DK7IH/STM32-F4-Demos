@@ -370,7 +370,10 @@ int main(void)
 		ADC1->CR2 |=  (1 << 30); //Start 1 conversion SWSTART
 		if(ADC1->SR & (1 << 1)) //Is EOC (End of Conversion) bit set?
 		{
-			adcval = ADC1->DR; 
+			ADC1->CR2 |=  (1 << 30);       //Start 1st conversion SWSTART
+            while(!(ADC1->SR & (1 << 1))); //Wait until conversion is complete
+            adcval = ADC1->DR;             //Read value from register
+            
 			lcd_putstring(2, 0, (char*)"    ");			
 			voltage = (uint16_t)(4096 / adcval * 3.3);
 			lcd_putnumber(2, 0, voltage, -1, -1, 'l', 0);

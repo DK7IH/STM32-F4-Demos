@@ -311,7 +311,8 @@ void lcd_line_cls(int ln)
 ///////////////////
 int main(void)
 {
-    int16_t adcval = 0;
+    uint16_t adcval = 0;
+    uint16_t voltage;
 	
 	//////////////////////////////////////////
     // Setup LED w. GPIOC
@@ -352,7 +353,6 @@ int main(void)
 	ADC1->CR1 &= ~(3 << 24);				        //12bit resolution (Bit24,25 0b00)
 	ADC1->SQR1 |= (1 << 20);                        //Set number of conversions projected (L[3:0] 0b0001)
 	ADC1->SQR3 &= ~(0x3FFFFFFF);	                //Clears whole 1st 30bits in register
-	ADC->CCR |= (1 << 23);                          //Set TSVREFE bit -> Switch on internal temp sensor AND VREFINT
 	ADC1->SQR3 |= (8 << 0);			                //First conversion in regular sequence: PB0 as ADC1_In8
     ADC1->CR2 &= ~(1 << 1);			                //Single conversion
 	ADC1->CR2 &= ~(1 << 11);			            //Right alignment of data bits  bit12....bit0
@@ -372,7 +372,8 @@ int main(void)
 		{
 			adcval = ADC1->DR; 
 			lcd_putstring(2, 0, (char*)"    ");			
-			lcd_putnumber(2, 0, adcval, -1, -1, 'l', 0);
+			voltage = (uint16_t)(4096 / adcval * 3.3);
+			lcd_putnumber(2, 0, voltage, -1, -1, 'l', 0);
 			GPIOC->ODR &= ~(1 << 13);            //LED on
 			delay_ms(100);
 			GPIOC->ODR |= (1 << 13);            //LED off

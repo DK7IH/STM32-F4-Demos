@@ -53,29 +53,28 @@ static void delay_ms(unsigned int);
 static void delay_us(unsigned int); 
 extern "C" void EXTI0_IRQHandler(void);
 
-extern "C" void EXTI0_IRQHandler(void)
-{
-    uint16_t gray;
-    uint16_t state;
-	
-    // Check if the interrupt came from exti0
-    if (EXTI->PR & (1 << 0))
-    {
-		GPIOC->ODR ^= (1 << 13);            //Toggle LED
-		
-		gray = GPIOB->IDR & 0x03;           //Read PB0 and PB1
-   	    state = (gray >> 1) ^ gray;         //Convert from Gray code to binary
-   	    	
-	    if (state != laststate)             //Compare states
-        {        
-            rotate = ((laststate - state) & 0x03) - 2; // Results in -1 or +1
-            laststate = state;
-        } 
-	
-	    //Clear pending bit
-        EXTI->PR = (1 << 0);
+extern "C" void EXTI0_IRQHandler(void) 
+{ 
+	uint16_t state; //Check first if the interrupt is triggered by EXTI0 
+	if(EXTI->PR & (1 << 0)) 
+	{ 
+		state = GPIOC->IDR & 0x03; //Read pins
+        if(state & 1)
+        {
+            if(state & 2)
+            {
+                //Turn CW
+            }
+            else
+            {
+                //Turn CCW
+            }
+        }
+        //Clear pending bit
+        EXTI->PR = (1 << 14);
     }
 }
+
   /////////////////////////////
  //  Quick and esay delay   //
 /////////////////////////////
@@ -369,45 +368,17 @@ int main(void)
     RCC->AHB1ENR |= RCC_AHB1ENR_GPIOCEN; //RCC->AHB1ENR |= (1<<0);
     GPIOC->MODER |= (1 << (13 << 1));
     
-    //Use if neccessary!
-    /*
     //////////////////////////////////////////////
-    // Set SystemClock to 48 MHz with 8 MHz HSE
-    //////////////////////////////////////////////
-    FLASH->ACR |= FLASH_ACR_LATENCY_1WS;      //1 wait state for 48 MHz
-    RCC->CR |= RCC_CR_HSEON;                    //Activate external clock (HSE: 8 MHz)
-    while ((RCC->CR & RCC_CR_HSERDY) == 0);     //Wait until HSE is ready
-    RCC->PLLCFGR &= ~RCC_PLLCFGR_PLLQ;
-    RCC->PLLCFGR |= 4 << RCC_PLLCFGR_PLLQ_Pos;  //PLL-Q: /4
-    RCC->PLLCFGR |= RCC_PLLCFGR_PLLSRC_HSE;     //PLL source is HSE
-    RCC->PLLCFGR &= ~RCC_PLLCFGR_PLLP;          //PLL-P: /2
-    RCC->PLLCFGR &= ~RCC_PLLCFGR_PLLN;
-    RCC->PLLCFGR |= 96 << RCC_PLLCFGR_PLLN_Pos; //PLL-N: x96
-    RCC->PLLCFGR &= ~RCC_PLLCFGR_PLLM;
-    RCC->PLLCFGR |= 4 << RCC_PLLCFGR_PLLM_Pos;  //PLL-M: /4
-    RCC->CR |= RCC_CR_PLLON;                    //Activate PLL (Output: 96 MHz)
-    while ((RCC->CR & RCC_CR_PLLRDY) == 0);     //Wait until PLL is ready
-    
-    //Division by 2 of clk signal       
-    RCC->CFGR |= RCC_CFGR_HPRE_DIV2             //AHB divider:  /2 = 48MHz
-              | RCC_CFGR_PPRE1_DIV2             //APB1 divider: /2 = 24MHz
-              | RCC_CFGR_PPRE2_DIV2;            //APB2 divider: /2 = 24MHz
-               
-    RCC->CFGR |= RCC_CFGR_SW_PLL;               //Switching to PLL clock source
-    */
-    
-    //////////////////////////////////////////////
-    //Activate Input pins for 
-    //usage as EXTI0/EXTI1 source
+    //Rotary Encoder Setup
     //////////////////////////////////////////////
     //Set PB0, PB1 as input pins
-    RCC->AHB1ENR |= RCC_AHB1ENR_GPIOBEN;                //GPIOB power up
+    RCC->AHB1ENR |= (1 << 1);                           //GPIOB power up
     GPIOB->MODER &= ~((3 << (0 << 1))|(3 << (1 << 1))); //PB0 und PB1 Input
     GPIOB->PUPDR |= (1 << (0 << 1))|(1 << (1 << 1));    //Pullup PB0 und PB1
     
     RCC->APB2ENR |= (1 << 14); //Enable SYSCFG clock (APB2ENR: bit 14)
     
-    SYSCFG->EXTICR[0] |= 0x00000001; // Write 0001 to map PB0 to EXTI0
+    SYSCFG->EXTICR[0] |= 0x0001;     //Write 0001 to map PB0 to EXTI0
     EXTI->RTSR |= 0x00001;           // Enable rising edge trigger on EXTI0
     EXTI->IMR |= 0x00001;            //Mask EXTI0
     

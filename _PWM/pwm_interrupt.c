@@ -74,9 +74,8 @@ int main(void)
     RCC->CFGR |= RCC_CFGR_SW_PLL;               //Switching to PLL clock source
 
 	//////////////////////////////////////////
-    // Setup TIMER2
+    //Setup TIMER3
     //////////////////////////////////////////
-    
     RCC->AHB1ENR |= (1 << 0);             //Enable GPIOA clock
     GPIOA->MODER |= (0x02 << 12);         //Set PA6 to AF mode
     

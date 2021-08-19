@@ -58,7 +58,7 @@ int main(void)
     RCC->CFGR |= RCC_CFGR_SW_PLL;               //Switching to PLL clock source
     
     //////////////////////////////////////////
-    // Setup TIMER
+    //Setup TIMER
     //////////////////////////////////////////
     RCC->AHB1ENR |= (1 << 3); //Power up PORTD with LEDs
 	GPIOD->MODER |= (2UL << (15 << 1)) + (2UL << (14 << 1)) + (2UL << (13 << 1)) + (2UL << (12 << 1)); // Turn on alternate function for BITS 12, 13, 14, 15

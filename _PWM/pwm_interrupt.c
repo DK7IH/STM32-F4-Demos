@@ -16,9 +16,6 @@
 #include "stm32f4xx.h"
 #include "system_stm32f4xx.h"
 
-#define PWMPERIOD 255
-#define PWMMAX    255
-
   ////////////
  //  MISC  //
 ////////////
@@ -27,20 +24,11 @@ extern "C" void TIM3_IRQHandler(void);
 
 extern "C" void TIM3_IRQHandler(void)
 {
-    static uint32_t dc = 0;
-    
     //Clear interrupt status
     if((TIM3->DIER & 0x01) && (TIM3->SR & 0x01))
     {
         TIM3->SR &= ~(1U << 0);
     }
-
-    if(dc >= PWMMAX)
-    {
-		dc = 0;
-	}	
-    
-    TIM3->CCR1 = (PWMMAX - dc++); //Set new duty cycle
 }
 
   ///////////////////
@@ -85,8 +73,8 @@ int main(void)
 
     TIM3->PSC = 499; //fCK_PSC / (PSC[15:0] + 1) -> 50 Mhz / (499 + 1) = 100 khz timer clock speed
     
-    TIM3->ARR = PWMPERIOD; //Set period
-    TIM3->CCR1 = 0;        //Set duty cycle on channel 1
+    TIM3->ARR = 255;         //Set period (i. e. 100% dc)
+    TIM3->CCR1 = 128;        //Set current duty cycle on channel 1
     
     TIM3->CCMR1 |= (0x06 << 4); //Set OC1 mode as PWM (0b110 (0x06) in Bits 6:4)
     

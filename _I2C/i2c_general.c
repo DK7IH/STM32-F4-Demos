@@ -38,14 +38,14 @@ static void delay (unsigned int time)
 
 void i2c_start(void) 
 {
-    I2C1->CR1 |= I2C_CR1_START;
-    while(!(I2C1->SR1 & I2C_SR1_SB));
+    I2C1->CR1 |= (1 << 8);
+    while(!(I2C1->SR1 & (1 << 0)));
 }
 
 void i2c_stop(void) 
 {
-    I2C1->CR1 |= I2C_CR1_STOP;
-    while(!(I2C1->SR2 & I2C_SR2_BUSY));
+    I2C1->CR1 |= (1 << 9);
+    while(!(I2C1->SR2 & (1 << 1)));
 }
 
 void i2c_write_1byte(uint8_t regaddr, uint8_t data) 
@@ -192,13 +192,13 @@ int main(void)
     GPIOD->ODR    = 0x0000;
     
     //////////////////////////////////////////
-    // setup I2C - GPIOB 6 SCK, 9 SDA
+    // setup I2C - GPIOB 6 SCL, 9 SDA
     //////////////////////////////////////////
     //Enable I2C clock
-    RCC->APB1ENR |= RCC_APB1ENR_I2C1EN;
+    RCC->APB1ENR |= (1 << 21);
 
     //Setup I2C PB6 and PB9 pins
-    RCC->AHB1ENR |= RCC_AHB1ENR_GPIOBEN;
+    RCC->AHB1ENR |= (1 << 1);
     GPIOB->MODER &= ~(3 << (6 << 1)); //PB6 as SCK
     GPIOB->MODER |=  (2 << (6 << 1)); //Alternate function
     GPIOB->OTYPER |= (1 << 6);        //open-drain
@@ -215,13 +215,11 @@ int main(void)
     I2C1->CR1 = 0;
 
     //Set I2C clock
-    I2C1->CR2 |= (10 << 0); // 10Mhz periph clock
+    I2C1->CR2 |= (10 << 0);   //10Mhz periph clock
     I2C1->CCR |= (50 << 0);
-    //Maximum rise time.
     I2C1->TRISE |= (11 << 0); //Set TRISE to 11 eq. 100khz
-    
     I2C1->CR1 |= I2C_CR1_PE; //Enable i2c
-    // I2C init procedure accomplished. 
+    //I2C init procedure accomplished. 
     
     while(1)
     {

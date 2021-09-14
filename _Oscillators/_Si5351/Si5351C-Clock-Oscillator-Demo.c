@@ -2,13 +2,14 @@
 /*                    Si5351 driver software                     */
 ///////////////////////////////////////////////////////////////////
 /*  MCU:              STM32F4 (ARM Cortex M4)                    */
-/*  Hardware:         F411E Discovery board by STM               */
+/*  Hardware:         F411E BlackPill Board                      */
 /*  Compiler:         GCC (GNU ARM TOOLCHAIN)                    */
 /*  Author:           Peter Baier  (DK7IH)                       */
 /*  Last change:      JUL 2021                                   */
 ///////////////////////////////////////////////////////////////////
 #include "stm32f4xx.h"
 #include "system_stm32f4xx.h"
+#include <math.h>
 
 //I2C Ports for Si5351
 //SCK: PB6
@@ -25,23 +26,24 @@ void i2c_write(uint8_t, uint8_t);
   ////////////////////////
  // Defines for Si5351 //
 ////////////////////////
-#define SI5351_ADDRESS 0xC0 //Check your module for correct address setting. IDs may vary!
-#define PLLRATIO 36
-#define CFACTOR 1048575
+#define SI5351_ADDRESS 0xC0     //Check individual module for correct address setting. IDs may vary!
+#define FXTAL          27000000 //Hz
+#define PLLRATIO       32       //FXTAL * PLLRATIO = f.VCO
 
-//Set of Si5351A register addresses
-#define CLK_ENABLE_CONTROL       3
-#define PLLX_SRC				15
-#define CLK0_CONTROL            16 
-#define CLK1_CONTROL            17
-#define CLK2_CONTROL            18
-#define SYNTH_PLL_A             26
-#define SYNTH_PLL_B             34
-#define SYNTH_MS_0              42
-#define SYNTH_MS_1              50
-#define SYNTH_MS_2              58
-#define PLL_RESET              177
-#define XTAL_LOAD_CAP          183
+//Set of Si5351A relevant register addresses
+#define CLK_ENABLE_CONTROL          3
+#define PLLX_SRC				   15
+#define CLK0_CONTROL               16 
+#define CLK1_CONTROL               17
+#define CLK2_CONTROL               18
+#define SYNTH_PLL_A                26
+#define SYNTH_PLL_B                34
+#define SYNTH_MS_0                 42
+#define SYNTH_MS_1                 50
+#define SYNTH_MS_2                 58
+#define SPREAD_SPECTRUM_PARAMETERS 149
+#define PLL_RESET                  177
+#define XTAL_LOAD_CAP              183
 
 //SI5351 Declarations & frequency
 void si5351_start(void);
@@ -50,34 +52,35 @@ void si5351_set_freq(int, unsigned long);
   //////////////////////
  // Si5351A commands //
 //////////////////////
-
-// Set PLLs (VCOs) to internal clock rate of 900 MHz
-// Equation fVCO = fXTAL * (a+b/c) (=> AN619 p. 3
+//Set PLLA (VCO) to internal clock rate of 900 MHz
+//In this example PLLB is not used
+//Equation fVCO = fXTAL * (a+b/c) => see AN619 p.3
 void si5351_start(void)
 {
   unsigned long a, b, c;
-  unsigned long p1, p2;//, p3;
+  unsigned long p1, p2;
     
-  // Init clock chip
+  //Init
+  i2c_write(PLLX_SRC, 0);              //Select XTAL as clock source for si5351C
+  i2c_write(SPREAD_SPECTRUM_PARAMETERS, 0); //Spread spectrum diasble (Si5351 A or B only!
   i2c_write(XTAL_LOAD_CAP, 0xD2);      // Set crystal load capacitor to 10pF (default), 
-                                          // for bits 5:0 see also AN619 p. 60
+                                       // for bits 5:0 see also AN619 p. 60
   i2c_write(CLK_ENABLE_CONTROL, 0x00); // Enable all outputs
-  i2c_write(CLK0_CONTROL, 0x0F);       // Set PLLA to CLK0, 8 mA output
-  i2c_write(CLK1_CONTROL, 0x2F);       // Set PLLB to CLK1, 8 mA output
-  i2c_write(CLK2_CONTROL, 0x2F);       // Set PLLB to CLK2, 8 mA output
-  i2c_write(PLL_RESET, 0xA0);          // Reset PLLA and PLLB
+  i2c_write(CLK0_CONTROL, 0x0E);       // Set PLLA to CLK0, 8 mA output
+  i2c_write(CLK1_CONTROL, 0x0E);       // Set PLLA to CLK1, 8 mA output
+  i2c_write(CLK2_CONTROL, 0x0E);       // Set PLLA to CLK2, 8 mA output
+  i2c_write(PLL_RESET, (1 << 5));          // Reset PLLA and PLLB
 
-  // Set VCOs of PLLA and PLLB to 650 MHz
-  a = PLLRATIO;     // Division factor 650/25 MHz !!!!
-  b = 0;            // Numerator, sets b/c=0
-  c = CFACTOR;      //Max. resolution, but irrelevant in this case (b=0)
+  //Set VCO of PLLA to 864MHz
+  a = PLLRATIO;     // Division factor 864/27 MHz
+  b = 0;            // Numerator, sets b/c=0, See AN169 p.3!
+  c = 0xFFFFF;      // Max. resolution, but irrelevant in this case as b=0. See AN169 p.3!
 
   //Formula for splitting up the numbers to register data, see AN619
-  p1 = 128 * a + (unsigned long) (128 * b / c) - 512;
-  p2 = 128 * b - c * (unsigned long) (128 * b / c);
-  //p3  = c;
-  
-  //Write data to registers PLLA and PLLB so that both VCOs are set to 900MHz intermal freq
+  p1 = 128 * a + (unsigned long) floor(128 * b / c) - 512;
+  p2 = 128 * b - c * (unsigned long) floor(128 * b / c);
+    
+  //Write data to registers of PLLA so that VCO is set to 864MHz internal freq
   i2c_write(SYNTH_PLL_A, 0xFF);
   i2c_write(SYNTH_PLL_A + 1, 0xFF);
   i2c_write(SYNTH_PLL_A + 2, (p1 & 0x00030000) >> 16);
@@ -87,37 +90,30 @@ void si5351_start(void)
   i2c_write(SYNTH_PLL_A + 6, (p2 & 0x0000FF00) >> 8);
   i2c_write(SYNTH_PLL_A + 7, (p2 & 0x000000FF));
 
-  i2c_write(SYNTH_PLL_B, 0xFF);
-  i2c_write(SYNTH_PLL_B + 1, 0xFF);
-  i2c_write(SYNTH_PLL_B + 2, (p1 & 0x00030000) >> 16);
-  i2c_write(SYNTH_PLL_B + 3, (p1 & 0x0000FF00) >> 8);
-  i2c_write(SYNTH_PLL_B + 4, (p1 & 0x000000FF));
-  i2c_write(SYNTH_PLL_B + 5, 0xF0 | ((p2 & 0x000F0000) >> 16));
-  i2c_write(SYNTH_PLL_B + 6, (p2 & 0x0000FF00) >> 8);
-  i2c_write(SYNTH_PLL_B + 7, (p2 & 0x000000FF));
 }
 
 void si5351_set_freq(int synth, unsigned long freq)
 {
-  unsigned long  a, b, c = CFACTOR; 
-  unsigned long f_xtal = 25000000;
+  unsigned long  a, b, c = 0xFFFFF; 
+  unsigned long f_xtal = FXTAL;
   double fdiv = (double) (f_xtal * PLLRATIO) / freq; //division factor fvco/freq (will be integer part of a+b/c)
-  double rm; //remainder
-  unsigned long p1, p2;
+  double rm; //remaining
+  unsigned long p1, p2, p3;
   
   a = (unsigned long) fdiv;
   rm = fdiv - a;  //(equiv. to fractional part b/c)
-  b = rm * c;
-  p1  = 128 * a + (unsigned long) (128 * b / c) - 512;
-  p2 = 128 * b - c * (unsigned long) (128 * b / c);
+  b = (unsigned long) (rm * c);
+  p1  = 128 * a + (unsigned long) floor(128 * b / c) - 512;
+  p2 = 128 * b - c * (unsigned long) floor(128 * b / c);
+  p3 = c;
       
-  //Write data to multisynth registers of synth n
-  i2c_write(synth, 0xFF);      //1048575 MSB
-  i2c_write(synth + 1, 0xFF);  //1048575 LSB
-  i2c_write(synth + 2, (p1 & 0x00030000) >> 16);
-  i2c_write(synth + 3, (p1 & 0x0000FF00) >> 8);
-  i2c_write(synth + 4, (p1 & 0x000000FF));
-  i2c_write(synth + 5, 0xF0 | ((p2 & 0x000F0000) >> 16));
+  //Write data to multisynth registers of synth
+  i2c_write(synth + 0, (p3 & 0xFF00) >> 8);  
+  i2c_write(synth + 1, p3 &  0xFF);      
+  i2c_write(synth + 2, (p1 >> 16) & 0x03);
+  i2c_write(synth + 3, (p1 & 0xFF00) >> 8);
+  i2c_write(synth + 4, (p1 & 0xFF));
+  i2c_write(synth + 5, (p3 & 0xF0) | ((p2 >> 16) & 0x0F));
   i2c_write(synth + 6, (p2 & 0x0000FF00) >> 8);
   i2c_write(synth + 7, (p2 & 0x000000FF));
 }
@@ -173,16 +169,16 @@ void i2c_write(uint8_t regaddr, uint8_t data)
 //////////////////////
 int main(void)
 {
-    //Setup LEDs - GPIOD 12,13,14,15 F411-E Discovery board
-    RCC->AHB1ENR |= RCC_AHB1ENR_GPIODEN;
-    GPIOD->MODER &= ~(0xFFU << 24);
-    GPIOD->MODER |= (0x55 << 24);
-    GPIOD->ODR    = 0x0000;
-        
+    ////////////////////////////////////////// 
+    // Setup LED
+    //////////////////////////////////////////
+	//Turn on the GPIOC peripheral for LED
+    RCC->AHB1ENR |= (1 << 2); 
+	GPIOC->MODER |= (1 << (13 << 1));	//Set PC13 for output        
     //Enable I2C clock
     RCC->APB1ENR |= RCC_APB1ENR_I2C1EN;
 
-    // Setup I2C as GPIOB 6, 9  SCK, SDA
+    // Setup I2C as GPIOB 6 SCL, 9 SDA
     RCC->AHB1ENR |= RCC_AHB1ENR_GPIOBEN;
     GPIOB->MODER &= ~(3 << (6 << 1)); //PB6 as SCK
     GPIOB->MODER |=  (2 << (6 << 1)); //Alternate function
@@ -215,15 +211,15 @@ int main(void)
     si5351_start();
     
     //Set a frequency for check
-	si5351_set_freq(SYNTH_MS_0, 5000000);
+	si5351_set_freq(SYNTH_MS_0, 1000000);
 	
     while(1)
     {
 		//Blinking LED shows proper operation
-        GPIOD->ODR |= (1 << 12); //LED on 
+        GPIOC->ODR &= ~(1 << 13); //LED on 
         delay(100);
-        si5351_set_freq(SYNTH_MS_0, 5000000);
-        GPIOD->ODR &= ~(1 << 12); //LED off
+        si5351_set_freq(SYNTH_MS_0, 30000000);
+        GPIOC->ODR |= (1 << 13); //LED off
         delay(100);
     }
     return 0; 

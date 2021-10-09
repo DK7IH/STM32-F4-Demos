@@ -1,11 +1,12 @@
 ///////////////////////////////////////////////////////////////////  
 /*                    AD9850 DDS driver software                 */
+/*                    Extra: Frequency modulating the AD9850     */
 ///////////////////////////////////////////////////////////////////
 /*  MCU:              STM32F4 (ARM Cortex M4)                    */
-/*  Hardware:         F411E Discovery board by STM               */
+/*  Hardware:         Black Pill Board                           */
 /*  Compiler:         GCC (GNU ARM TOOLCHAIN)                    */
 /*  Author:           Peter Baier  (DK7IH)                       */
-/*  Last change:      JUL 2021                                   */
+/*  Last change:      OCT 2021                                   */
 ///////////////////////////////////////////////////////////////////
 #include "stm32f4xx.h"
 #include <string.h>

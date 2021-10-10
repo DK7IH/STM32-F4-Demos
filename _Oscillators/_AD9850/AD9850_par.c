@@ -12,7 +12,8 @@
 #include "system_stm32f4xx.h"
 #include <math.h>
 
-// PIN and PORT definitions for AD9850 lines connected to PORT A
+// PIN and PORT definitions for AD9850 lines connected to PORT A (D7..D0)
+// and PORTB (W_CLK, FQ_UD, RES)
 #define DDS_DATA_GPIO GPIOA
 #define DDS_CTRL_GPIO GPIOB
 #define W_CLK 0   //PB0 blue

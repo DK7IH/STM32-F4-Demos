@@ -42,6 +42,7 @@ void set_frequency(unsigned long fx)
     double fword0;
     unsigned long fword1;
     int t1;
+    int sh = 24;
     		
 	//Define frequency word
     fword0 = (double) fx / clk * 4294967296;
@@ -56,10 +57,11 @@ void set_frequency(unsigned long fx)
     
     for(t1 = 3; t1 >= 0; t1--)
     {
-		DDS_DATA_GPIO->ODR = (fword1 >> (8 * t1)) & 0xFF;
+		DDS_DATA_GPIO->ODR = (fword1 >> sh) & 0xFF;
+		sh -= 8;
 		
         DDS_CTRL_GPIO->ODR |= (1 << W_CLK);  
-        DDS_CTRL_GPIO->ODR &= ~(1 << W_CLK);   
+        DDS_CTRL_GPIO->ODR &= ~(1 << W_CLK);
 	}	
 	
     DDS_CTRL_GPIO->ODR |= (1 << FQ_UD); //FQ_UD hi
@@ -130,14 +132,14 @@ int main(void)
     for(t1 = 0; t1 < 8; t1 ++)
     {
 		DDS_DATA_GPIO->MODER  |=  (1 << (t1 << 1));	
-        DDS_DATA_GPIO->OSPEEDR =  (3 << (t1 << 1));	
+        DDS_DATA_GPIO->OSPEEDR |=  (3 << (t1 << 1));	
     }
     
     //Put pin B0..B2 in general purpose output mode (CTRL-Port)
     DDS_CTRL_GPIO->MODER  |=  (1 << (W_CLK << 1));	
-    DDS_CTRL_GPIO->OSPEEDR =  (3 << (W_CLK << 1));	
+    DDS_CTRL_GPIO->OSPEEDR |=  (3 << (W_CLK << 1));	
     DDS_CTRL_GPIO->MODER  |=  (1 << (FQ_UD << 1));	
-    DDS_CTRL_GPIO->OSPEEDR =  (3 << (FQ_UD << 1));	
+    DDS_CTRL_GPIO->OSPEEDR |=  (3 << (FQ_UD << 1));	
     DDS_CTRL_GPIO->MODER  |=  (1 << (RES << 1));	
     
     //Reset AD9850
@@ -149,14 +151,13 @@ int main(void)
     
     while(1)
     {
-		for(f = 100; f < 40000000; f++)
+		for(f = 100; f < 40000000; f += 10)
 		{
 			set_frequency(f);
 			//Blinking LED shows proper operation
             GPIOC->ODR &= ~(1 << 13); //LED on 
             GPIOC->ODR |= (1 << 13); //LED off
         }    
-        
     }
     return 0; 
 }

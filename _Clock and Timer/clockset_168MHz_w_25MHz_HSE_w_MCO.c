@@ -59,7 +59,7 @@ int main(void)
     GPIOA->AFR[1] = 0;                  //0b0000   
     
     //////////////////////////////////////////////
-    // Set SystemClock to 100 MHz with 25 MHz HSE
+    // Set SystemClock to 168 MHz with 25 MHz HSE
     //////////////////////////////////////////////
     FLASH->ACR |= 0b010;                         //2 wait state for 100 MHz
     RCC->CR |= (1 << 16);                        //Activate external clock (HSE: 8 MHz)

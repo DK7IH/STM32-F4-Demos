@@ -71,7 +71,7 @@ int main(void)
                                                 //Set PLLM
     RCC->PLLCFGR &= ~0x3F;                      //1st Reset bits
     RCC->PLLCFGR |= 20;                          //2nd define VCO input frequency = PLL input clock frequency (f.HSE) / PLLM with 2 ≤ PLLM ≤ 63 
-                                                //-> f.VCO.in = 25MHz / 8 = 1.25MHz
+                                                //-> f.VCO.in = 25MHz / 20 = 1.25MHz
                                                 
                                                 //Set PLLN: PPLLN defines VCO out frequency
     RCC->PLLCFGR &= ~0x7FC0;                    //1st Reset bits 14:6

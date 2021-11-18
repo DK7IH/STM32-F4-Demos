@@ -11,7 +11,8 @@
 //pin change and fire interrupt on EXTI0 when rotary encoder
 //is turned cw/ccw. Rising edge of pin change will be detected.
 //Value of variable "rotate" becomes either 1 or -1 to indicate 
-//direction. This is shown by lighting one of leds installed.
+//direction. This is shown by lighting one of leds (PB14, PB15 to VDD) 
+//installed.
 //
 #include "stm32f4xx.h"
 #include "system_stm32f4xx.h"

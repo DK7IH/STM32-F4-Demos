@@ -23,6 +23,8 @@
 #define LCD_RS 4 //PA4
 #define LCD_RW 5 //PA5
 #define LCD_E  6 //PA6
+#define DATAPIN0 0   //Set to number of first data pin on MCU! E. g. set 
+                     //to 0 if data port starts with A0.
 
 //LEDs
 #define LEDGPIO GPIOA
@@ -46,52 +48,37 @@ int main(void);
 // Write CMD or DATA to LCD
 void lcd_write(char lcdmode, unsigned char value)
 {
-    int t1;
+    uint8_t nh = (value >> 4) & 0x0F;
+    uint8_t nl = value & 0x0F;
     
     while(lcd_check_busy()); //Check busy flag
     	
-	LCDGPIO->ODR &= ~(1 << LCD_RW);   //Set RW to write operation, i. e. =0
+	LCD_GPIO->ODR &= ~(1 << LCD_RW);   //Set RW to write operation, i. e. =0
 	    
     if(!lcdmode)
 	{
-        LCDGPIO->ODR &= ~(1 << LCD_RS); //CMD
+        LCD_GPIO->ODR &= ~(1 << LCD_RS); //CMD
 	}	
     else
 	{
-        LCDGPIO->ODR |= (1 << LCD_RS);   //DATA
-	}	
-	    
-    LCDGPIO->ODR |= (1 << LCD_E); //E = 1
-    //HI NIBBLE    
-    for(t1 = 0; t1 < 4; t1++)
-	{
-	    if(((value & 0xF0) >> 4) & (1 << t1))
-	    {
-	       LCDGPIO->ODR |= (1 << t1);      
-	    }
-        else	
-	    {
-           LCDGPIO->ODR &= ~(1 << t1);     
-	    }  
+        LCD_GPIO->ODR |= (1 << LCD_RS);   //DATA
 	}	
 	
-	LCDGPIO->ODR &= ~(1 << LCD_E);
+	LCD_GPIO->ODR &= ~(0x0F << DATAPIN0); //Reset data port
 	
-	//LO NIBBLE
-	LCDGPIO->ODR |= (1 << LCD_E); //E = 1
-	for(t1 = 0; t1 < 4; t1++)
-	{
-	    if(value  & (1 << t1))
-	    {
-	       LCDGPIO->ODR |= (1 << t1);      
-	    }
-        else	
-	    {
-           LCDGPIO->ODR &= ~(1 << t1);     
-	    }  
-	}
-    
-	LCDGPIO->ODR &= ~(1 << LCD_E);
+	//HI NIBBLE        
+    LCD_GPIO->ODR |= (1 << LCD_E);
+    LCD_GPIO->ODR |= (nh << DATAPIN0);
+    delay_ms(2);
+	LCD_GPIO->ODR &= ~(1 << LCD_E);
+	
+	LCD_GPIO->ODR &= ~(0x0F << DATAPIN0); //Reset data port
+	
+	//LO NIBBLE        
+	LCD_GPIO->ODR |= (1 << LCD_E);
+    LCD_GPIO->ODR |= (nl << DATAPIN0);
+    delay_ms(2);
+	LCD_GPIO->ODR &= ~(1 << LCD_E);
 }
 
 int lcd_check_busy(void)

@@ -2,7 +2,7 @@
 /*                    OLED SH1106 driver software (Text only)    */
 ///////////////////////////////////////////////////////////////////
 /*  MCU:              STM32F4 (ARM Cortex M4)                    */
-/*  Hardware:         F411E Discovery board by STM               */
+/*  Hardware:         F411E Blackpillboard by WeAct              */
 /*  Compiler:         GCC (GNU ARM TOOLCHAIN)                    */
 /*  Author:           Peter Baier  (DK7IH)                       */
 /*  Last change:      JUL 2021                                   */
@@ -256,7 +256,7 @@ void oled_data(unsigned int *data, unsigned int n)
 //Set "cursor" to current position to screen
 void oled_gotoxy(uint8_t x, uint8_t y)
 {
-   int x2 = x + 2;	
+   int x2 = x;	
    
    uint8_t d[4];
    d[0] = OLEDCMD;
@@ -568,21 +568,20 @@ static void delay (unsigned int time)
 int main(void)
 {	
 	///////////////////////////////////
-    // Set up LEDs - GPIOD 12,13,14,15
+    // Set up LED - GPIOC 13
     ///////////////////////////////////
-    RCC->AHB1ENR |= RCC_AHB1ENR_GPIODEN;
-    GPIOD->MODER &= ~(0xFFU << 24);
-    GPIOD->MODER |= (0x55 << 24);
-    GPIOD->ODR    = 0x0000;
-
+    //Turn on the GPIOC peripheral for LED
+    RCC->AHB1ENR |= (1 << 2); 
+	GPIOC->MODER |= (1 << (13 << 1));	//Set PC13 for output
+	
     //////////////////////////////////////////
-    // Set up I2C - GPIOB 6, 9
+    // Set up I2C - GPIOB 6, 9 for OLED
     //////////////////////////////////////////
     //Enable I2C clock
-    RCC->APB1ENR |= RCC_APB1ENR_I2C1EN;
+    RCC->APB1ENR |= (1 << 21); //I2C1 enable
 
     //Set up I2C PB6 and PB9 pins
-    RCC->AHB1ENR |= RCC_AHB1ENR_GPIOBEN;
+    RCC->AHB1ENR |= (1 << 1);         //GPIOB enable
     GPIOB->MODER &= ~(3 << (6 << 1)); //PB6 as SCK
     GPIOB->MODER |=  (2 << (6 << 1)); //Alternate function
     GPIOB->OTYPER |= (1 << 6);        //Open-drain
@@ -595,7 +594,7 @@ int main(void)
     GPIOB->AFR[1] |= (4 << ((9 - 8) << 2)); //for PB9
 
     //Reset and clear register
-    I2C1->CR1 = I2C_CR1_SWRST;
+    I2C1->CR1 = (1 << 15); //I2C1 SWRST
     I2C1->CR1 = 0;
 
     I2C1->CR2 |= (10 << 0); //10Mhz peripheral clock
@@ -605,22 +604,21 @@ int main(void)
     I2C1->TRISE |= (11 << 0); //Program for value=11 => 100khz
         
     //Enable I2C    
-    I2C1->CR1 |= I2C_CR1_PE; 
+    I2C1->CR1 |= (1 << 0); //PE 
     
     //Start OLED
     oled_init();
     oled_cls(0);
     
-    //Do some testing
-    oled_putstring(0, 0, (char*) "DK7IH 2021", 0, 0);
-    oled_putstring(0, 2, (char*) "DK7IH", 1, 0);
-
+    //Intro screen
+    oled_putstring(0, 0, (char*) "DK7IH OLED Driver STM32", 0, 0);
+    
     while(1)
     {
-        GPIOD->ODR |= (1 << 12); //Green led off, blink shows success
+        GPIOC->ODR |= (1 << 13); //Led off
         delay(10);
      
-        GPIOD->ODR &= ~(1 << 12); //Green led on
+        GPIOC->ODR &= ~(1 << 13); //Led on
         delay(10);
     }
     return 0; 

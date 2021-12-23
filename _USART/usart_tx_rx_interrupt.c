@@ -91,7 +91,7 @@ int main(void)
     GPIOA->MODER |=  (0xAU << 4); //Set   bits 4:5 for PA2 and 6:7 for PA3 to alternate mode (10)
 
     //Set pin modes as high speed
-    GPIOA->OSPEEDR |= 0x000000A0; //Set pin 2/3 to high speed mode (0b10)
+    GPIOA->OSPEEDR |= 0xA0 << 4; //Set pin 2/3 to fast speed mode (0b10 << 4)
 
     //Choose AF7 for USART2 in Alternate Function registers
     GPIOA->AFR[0] |= (0x7 << 8); // for pin A2

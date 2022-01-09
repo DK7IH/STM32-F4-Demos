@@ -30,7 +30,6 @@
 #define LEDGPIO GPIOA
 
 void lcd_write(char, unsigned char);
-void lcd_write(char, unsigned char);
 void lcd_init(void);
 void lcd_cls(void);
 void lcd_line_cls(int);

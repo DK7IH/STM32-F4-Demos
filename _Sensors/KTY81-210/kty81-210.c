@@ -10,7 +10,7 @@
 /*  Hardware:         WeAct Blackpill board                      */
 /*  Compiler:         GCC (GNU ARM TOOLCHAIN)                    */
 /*  Author:           Peter Baier  (DK7IH)                       */
-/*  Last change:      JUL 2021                                   */
+/*  Last change:      JAN 2022                                   */
 ///////////////////////////////////////////////////////////////////
 
 #include "stm32f4xx.h"

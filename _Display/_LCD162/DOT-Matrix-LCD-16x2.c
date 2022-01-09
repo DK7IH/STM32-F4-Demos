@@ -20,9 +20,10 @@
 #define LCD_D1 1 //PA1
 #define LCD_D2 2 //PA2
 #define LCD_D3 3 //PA3
-#define LCD_RS 6 //PA4
+#define LCD_E  4 //PA4
 #define LCD_RW 5 //PA5
-#define LCD_E  4 //PA6
+#define LCD_RS 6 //PA6
+
 #define DATAPIN0 0   //Set to number of first data pin on MCU! E. g. set 
                      //to 0 if data port starts with A0.
 

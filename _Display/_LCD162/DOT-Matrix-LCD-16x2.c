@@ -15,19 +15,16 @@
  //  LCD-Display  //
 ///////////////////
 // PIN definitions of Nokia 5110 lines on PORT A
-#define LCDGPIO GPIOA
+#define LCD_GPIO GPIOA
 #define LCD_D0 0 //PA0
 #define LCD_D1 1 //PA1
 #define LCD_D2 2 //PA2
 #define LCD_D3 3 //PA3
-#define LCD_RS 4 //PA4
+#define LCD_RS 6 //PA4
 #define LCD_RW 5 //PA5
-#define LCD_E  6 //PA6
+#define LCD_E  4 //PA6
 #define DATAPIN0 0   //Set to number of first data pin on MCU! E. g. set 
                      //to 0 if data port starts with A0.
-
-//LEDs
-#define LEDGPIO GPIOA
 
 void lcd_write(char, unsigned char);
 void lcd_init(void);
@@ -64,20 +61,21 @@ void lcd_write(char lcdmode, unsigned char value)
 	}	
 	
 	LCD_GPIO->ODR &= ~(0x0F << DATAPIN0); //Reset data port
-	
+		
 	//HI NIBBLE        
-    LCD_GPIO->ODR |= (1 << LCD_E);
     LCD_GPIO->ODR |= (nh << DATAPIN0);
-    delay_ms(2);
-	LCD_GPIO->ODR &= ~(1 << LCD_E);
+    LCD_GPIO->ODR |= (1 << LCD_E);
+    delay_ms(1);   
+    LCD_GPIO->ODR &= ~(1 << LCD_E);
 	
 	LCD_GPIO->ODR &= ~(0x0F << DATAPIN0); //Reset data port
 	
 	//LO NIBBLE        
-	LCD_GPIO->ODR |= (1 << LCD_E);
+
     LCD_GPIO->ODR |= (nl << DATAPIN0);
-    delay_ms(2);
-	LCD_GPIO->ODR &= ~(1 << LCD_E);
+    LCD_GPIO->ODR |= (1 << LCD_E);
+    delay_ms(1);   
+    LCD_GPIO->ODR &= ~(1 << LCD_E);
 }
 
 int lcd_check_busy(void)
@@ -92,31 +90,31 @@ int lcd_check_busy(void)
         GPIOE->PUPDR  &= ~(3 << (t1 << 1)); //Set to 00	-> No pullup nor pulldown
     } 
 	
-    LCDGPIO->ODR &= ~(0x01);
-    LCDGPIO->ODR |= (1 << LCD_RW);  //Read operation => RW=1
+    LCD_GPIO->ODR &= ~(0x01);
+    LCD_GPIO->ODR |= (1 << LCD_RW);  //Read operation => RW=1
 	
-	LCDGPIO->ODR &= ~(1 << LCD_RS); //CMD => RS=0: for busy flag
+	LCD_GPIO->ODR &= ~(1 << LCD_RS); //CMD => RS=0: for busy flag
 	
 	//Read data
 	//Hi nibble
-	LCDGPIO->ODR |= (1 << LCD_E);          //E=1
+	LCD_GPIO->ODR |= (1 << LCD_E);          //E=1
     delay_us(100);       
-	value = (LCDGPIO->IDR & 0x0F) << 4;
-    LCDGPIO->ODR &= ~(1 << LCD_E);       //E=0	
+	value = (LCD_GPIO->IDR & 0x0F) << 4;
+    LCD_GPIO->ODR &= ~(1 << LCD_E);       //E=0	
 		
 	//Lo nibble
-	LCDGPIO->ODR |= (1 << LCD_E);          //E=1
+	LCD_GPIO->ODR |= (1 << LCD_E);          //E=1
     delay_us(100);       
-	value += (LCDGPIO->IDR & 0x0F);
-    LCDGPIO->ODR &= ~(1 << LCD_E);       //E=0	
+	value += (LCD_GPIO->IDR & 0x0F);
+    LCD_GPIO->ODR &= ~(1 << LCD_E);       //E=0	
 		
 	//Put pin D0..D3 in general purpose output mode
-    LCDGPIO->MODER  |=  (1 << (LCD_D0 << 1));	
-    LCDGPIO->MODER  |=  (1 << (LCD_D1 << 1));	
-    LCDGPIO->MODER  |=  (1 << (LCD_D2 << 1));	
-    LCDGPIO->MODER  |=  (1 << (LCD_D3 << 1));	
+    LCD_GPIO->MODER  |=  (1 << (LCD_D0 << 1));	
+    LCD_GPIO->MODER  |=  (1 << (LCD_D1 << 1));	
+    LCD_GPIO->MODER  |=  (1 << (LCD_D2 << 1));	
+    LCD_GPIO->MODER  |=  (1 << (LCD_D3 << 1));	
     	
-	LCDGPIO->ODR |= 0x01;   
+	LCD_GPIO->ODR |= 0x01;   
 	
 	return (value >> 8) & 1;
 }  
@@ -151,21 +149,20 @@ void lcd_cls(void)
 //Init LCD
 void lcd_init(void)
 {
-		   
-    // Basic settings of LCD
-    // 4-Bit mode, 2 lines, 5x7 matrix
+    //Basic settings of LCD
+    //4-Bit mode, 2 lines, 5x7 matrix
     lcd_write(0, 0x28);
-    delay_ms(2);
+    delay_ms(5);
     lcd_write(0, 0x28);
-    delay_ms(2);
+    delay_ms(5);
     
-    // Display on, Cursor off, Blink off 
+    //Display on, Cursor off, Blink off 
     lcd_write(0, 0x0C);
-    delay_ms(2);
+    delay_ms(5);
 
-    // No display shift, no cursor move
+    //No display shift, no cursor move
     lcd_write(0, 0x04);
-    delay_ms(2);
+    delay_ms(5);
 }
 
 //Write an n-digit number (int or long) to LCD
@@ -314,30 +311,31 @@ int main()
 	delay_ms(100);
 
 	//Turn on the GPIOA peripheral
-    RCC->AHB1ENR |= RCC_AHB1ENR_GPIOAEN; //RCC->AHB1ENR |= (1<<0);
+    RCC->AHB1ENR |= (1<<0);
     
     //LCD
-    //Put pin D0..D6in general purpose output mode
-    LCDGPIO->MODER  |=  (1 << (LCD_D0 << 1));	
-    LCDGPIO->MODER  |=  (1 << (LCD_D1 << 1));	
-    LCDGPIO->MODER  |=  (1 << (LCD_D2 << 1));	
-    LCDGPIO->MODER  |=  (1 << (LCD_D3 << 1));	
-    LCDGPIO->MODER  |=  (1 << (LCD_RS << 1));	
-    LCDGPIO->MODER  |=  (1 << (LCD_RW << 1));	
-    LCDGPIO->MODER  |=  (1 << (LCD_E << 1));	
+    //Put pin A0..A6 in general purpose output mode
+    LCD_GPIO->MODER  |=  (1 << (LCD_D0 << 1));	
+    LCD_GPIO->MODER  |=  (1 << (LCD_D1 << 1));	
+    LCD_GPIO->MODER  |=  (1 << (LCD_D2 << 1));	
+    LCD_GPIO->MODER  |=  (1 << (LCD_D3 << 1));	
+    LCD_GPIO->MODER  |=  (1 << (LCD_RS << 1));	
+    LCD_GPIO->MODER  |=  (1 << (LCD_RW << 1));	
+    LCD_GPIO->MODER  |=  (1 << (LCD_E << 1));	
     
 	//Display init
-	delay_ms(20); //Datasheet: "Wait for more than 15ms after VDD rises to 4.5V"
+	delay_ms(200); //Datasheet: "Wait for more than 15ms after VDD rises to 4.5V"
     lcd_init();
-    lcd_cls();		
-    
+    delay_ms(200);
     defcustomcharacters();		
+    lcd_cls();		
     	
     lcd_putstring(0, 0, (char*)"LCD DEMO");
     lcd_putstring(1, 0, (char*)"by DK7IH");
        		    	
     for(;;) 
 	{
+		lcd_putstring(0, 0, (char*)"LCD DEMO");
 	}
 	return 0;
 }

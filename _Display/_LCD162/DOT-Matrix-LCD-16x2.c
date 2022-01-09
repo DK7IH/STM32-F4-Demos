@@ -14,7 +14,6 @@
   ///////////////////
  //  LCD-Display  //
 ///////////////////
-// PIN definitions of Nokia 5110 lines on PORT A
 #define LCD_GPIO GPIOA
 #define LCD_D0 0 //PA0
 #define LCD_D1 1 //PA1
@@ -148,22 +147,23 @@ void lcd_cls(void)
 
 
 //Init LCD
+//Delays must set in accordance to respective LCD model (driver)!
 void lcd_init(void)
 {
     //Basic settings of LCD
     //4-Bit mode, 2 lines, 5x7 matrix
     lcd_write(0, 0x28);
-    delay_ms(5);
+    delay_ms(15);
     lcd_write(0, 0x28);
-    delay_ms(5);
+    delay_ms(15);
     
     //Display on, Cursor off, Blink off 
     lcd_write(0, 0x0C);
-    delay_ms(5);
+    delay_ms(15);
 
     //No display shift, no cursor move
     lcd_write(0, 0x04);
-    delay_ms(5);
+    delay_ms(15);
 }
 
 //Write an n-digit number (int or long) to LCD
@@ -315,7 +315,7 @@ int main()
     RCC->AHB1ENR |= (1<<0);
     
     //LCD
-    //Put pin A0..A6 in general purpose output mode
+    //Put pin A0..A6 into general purpose output mode
     LCD_GPIO->MODER  |=  (1 << (LCD_D0 << 1));	
     LCD_GPIO->MODER  |=  (1 << (LCD_D1 << 1));	
     LCD_GPIO->MODER  |=  (1 << (LCD_D2 << 1));	

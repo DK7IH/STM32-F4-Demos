@@ -179,17 +179,17 @@ void lcd_init(void)
     //Basic settings of LCD
     //4-Bit mode, 2 lines, 5x7 matrix
     lcd_write(0, 0x28);
-    delay_ms(5);
+    delay_ms(8);
     lcd_write(0, 0x28);
-    delay_ms(5);
+    delay_ms(18);
     
     //Display on, Cursor off, Blink off 
     lcd_write(0, 0x0C);
-    delay_ms(5);
+    delay_ms(18);
 
     //No display shift, no cursor move
     lcd_write(0, 0x04);
-    delay_ms(5);
+    delay_ms(8);
 }
 
 //Write an n-digit number (int or long) to LCD
@@ -379,6 +379,7 @@ int main(void)
     lcd_init();
     delay_ms(20);
     defcustomcharacters();		
+    delay_ms(20);
     lcd_cls();		
     	
     lcd_putstring(0, 0, (char*)"micromaker.de");
@@ -396,7 +397,8 @@ int main(void)
             
    		    volt = (double) adcret * vdd / 4096;     //Convert ADCval to voltage
 	        rtherm = r1 / (vdd / volt - 1);          //Calculate current resistance of KTY81-210 thermistor
-	        temp = (rtherm - 1690) / 13.88 * 10.0;   //Calculate temp based on function R.therm = m*T+y0 from data sheet
+	        temp = (rtherm - 1690) / 13.88 * 10.0;   //Calculate temp based on function R.therm = m*T+y0 
+	                                                 //derived from data sheet
             
 			lcd_putstring(1, 0, (char*)"    ");			
 			lcd_putnumber(1, 0, temp, -1, 1, 'l', 0);

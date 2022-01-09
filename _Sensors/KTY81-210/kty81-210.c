@@ -1,8 +1,10 @@
 ///////////////////////////////////////////////////////////////////  
 //                    ADC demo for STM32F4                       //
 ///////////////////////////////////////////////////////////////////
-//Purpose: This demonstration reads analogue voltage from pin PB0//
-//and displays its numeric value to an LCD DOT matrix module     //
+//Purpose: This demonstration uses analog sensor KTY81-210 to    //
+//maesure ambient temp. A voltage divider with 2k fixed R to 3.3V//
+//and KTY81-210 to GND is used. PB0 is analog input to the center//
+//of the voltage divider.                                        //
 ///////////////////////////////////////////////////////////////////
 /*  MCU:              STM32F4 (ARM Cortex M4)                    */
 /*  Hardware:         WeAct Blackpill board                      */

@@ -1,1 +1,2 @@
 
+This project contains demonstration code for using the RFM12B data transceiver in the ISM band (here the 433MHz version has been used).

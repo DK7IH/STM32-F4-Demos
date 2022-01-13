@@ -868,6 +868,7 @@ int main(void)
     I2C1->CR1 |= (1 << 0); //PE     
     
     //Start OLED
+    delay_ms(500);
     oled_init();
     oled_cls(0);
     
@@ -884,7 +885,6 @@ int main(void)
     
     while(1)
     { 
-		
 		if(scomplete1) //Transmission from RFM12b completed -> process string
         {
 			oled_putstring(x * FONTW, y, msg_usart1, 0);

@@ -5,7 +5,7 @@
 /*  Hardware:         F411E Discovery board by STM               */
 /*  Compiler:         GCC (GNU ARM TOOLCHAIN)                    */
 /*  Author:           Peter Baier  (DK7IH)                       */
-/*  Last change:      JUL 2021                                   */
+/*  Last change:      JAN 2022                                   */
 ///////////////////////////////////////////////////////////////////
 #include "stm32f4xx.h"
 #include <string.h>

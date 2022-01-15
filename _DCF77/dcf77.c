@@ -520,7 +520,7 @@ void lcd_cls(int x0, int x1, int y0, int y1)
 }
 
   /////////////////////////////
- //   DCF77 decode routinea //
+ //   DCF77 decode routines //
 /////////////////////////////
 int get_bits(int b[], int sta, int end)
 {

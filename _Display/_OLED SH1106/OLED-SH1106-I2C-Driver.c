@@ -256,7 +256,7 @@ void oled_data(unsigned int *data, unsigned int n)
 //Set "cursor" to current position to screen
 void oled_gotoxy(uint8_t x, uint8_t y)
 {
-   int x2 = x;	
+   int x2 = x + 2;	
    
    uint8_t d[4];
    d[0] = OLEDCMD;

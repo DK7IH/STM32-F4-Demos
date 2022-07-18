@@ -2,7 +2,7 @@
 // Demo for rotary encoder (connected to PB0, PB1)       //
 // Uses 2 LEDs to GND with resistor on PB6 and PB7 to    //
 // show rotating direction.                              //  
-// MCU: STM32F$11 "Black Pill"                           //
+// MCU: STM32F411 "Black Pill"                           //
 // 2021 by Peter Baier micromaker.de                     //
 ///////////////////////////////////////////////////////////
 #include "stm32f4xx.h"

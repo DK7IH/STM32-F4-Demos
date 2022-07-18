@@ -120,7 +120,7 @@ void set_frequency(unsigned long frequency)
 void set_clock_multiplier(void)
 {
     //Start transfer to DDS
-    DDS_GPIO->ODR &= ~(DDS_IO_UD); //DDS_IO_UD lo
+    DDS_GPIO->ODR &= ~(1 << DDS_IO_UD); //DDS_IO_UD lo
     
 	//Send CFR2
 	spi_send_byte(0x01);
@@ -131,7 +131,7 @@ void set_clock_multiplier(void)
 	spi_send_byte(0x24); //0x04 << 3
 		
 	//End transfer sequence
-    DDS_GPIO->ODR |= (DDS_IO_UD); //DDS_IO_UD hi 
+    DDS_GPIO->ODR |= (1 << DDS_IO_UD); //DDS_IO_UD hi 
 }	
 
   //////////////

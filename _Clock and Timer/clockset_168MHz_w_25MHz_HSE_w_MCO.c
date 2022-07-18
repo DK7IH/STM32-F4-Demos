@@ -70,16 +70,16 @@ int main(void)
     
                                                 //Set PLLM
     RCC->PLLCFGR &= ~0x3F;                      //1st Reset bits
-    RCC->PLLCFGR |= 20;                          //2nd define VCO input frequency = PLL input clock frequency (f.HSE) / PLLM with 2 ≤ PLLM ≤ 63 
-                                                //-> f.VCO.in = 25MHz / 20 = 1.25MHz
+    RCC->PLLCFGR |= 10;                          //2nd define VCO input frequency = PLL input clock frequency (f.HSE) / PLLM with 2 ≤ PLLM ≤ 63 
+                                                //-> f.VCO.in = 25MHz / 10 = 2.5MHz
                                                 
                                                 //Set PLLN: PPLLN defines VCO out frequency
     RCC->PLLCFGR &= ~0x7FC0;                    //1st Reset bits 14:6
-    RCC->PLLCFGR |= (160 << 6);                 //2nd define f.VCO.out = f.VCO.in * 160 = 200MHz
+    RCC->PLLCFGR |= (160 << 6);                 //2nd define f.VCO.out = f.VCO.in * 160 = 400MHz
      
                                                 //Set PLLP: Main PLL (PLL) division factor for main system clock; Reset Bits 17:16
     RCC->PLLCFGR &= ~(0b11 << 16);              //Reset bits 17:16
-                                                //f.PLL.output.clock = f.VCO.out / 2 = 100MHz
+                                                //f.PLL.output.clock = f.VCO.out / 2 = 200MHz
                                                 
                                                 //Set PLLQ. PLLQ = division factor for USB OTG FS, SDIO and random number generator clocks
     RCC->PLLCFGR &= ~(0b1111 << 24);            //Reset bits 27:24

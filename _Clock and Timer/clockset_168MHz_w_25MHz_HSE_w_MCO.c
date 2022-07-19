@@ -53,7 +53,7 @@ int main(void)
     
     //Set PA8 as MCO pin
     RCC->CFGR |= (0b11 << 21);          //MCO1: Microcontroller clock output 1 11: PLL clock selected
-    RCC->CFGR |= (0b100 <<24);          //Divide f.out by 2
+    //RCC->CFGR |= (0b100 <<24);          //Divide f.out by 2 uncomment this line if your counter/scope is not for 100MHz!
     GPIOA->MODER |= (2 << (8 << 1));	//PA8 as AF
     GPIOA->OSPEEDR |= (3 << (8 << 1));	//HiSpeed
     GPIOA->AFR[1] = 0;                  //0b0000   

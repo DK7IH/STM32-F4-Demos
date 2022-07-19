@@ -45,37 +45,42 @@ int main(void)
 	//Turn on the GPIOA peripheral 
     RCC->AHB1ENR |= RCC_AHB1ENR_GPIOCEN; //RCC->AHB1ENR |= (1<<0);
     
-     /////////////////////////////////////////////
-    // Set SystemClock to 100 MHz with 25 MHz HSE
-    //////////////////////////////////////////////
-    FLASH->ACR |= (1 << 1);                     //2 wait states for 96+ MHz
-    RCC->CR |= (1 << 16);                       //Activate external clock (HSE: 25 MHz)
-    while ((RCC->CR & (1 << 17)) == 0);         //Wait until HSE is ready
+    /////////////////////////////////////////////////
+    // Set SystemClock to 100 MHz with 25 MHz HSE  //
+    /////////////////////////////////////////////////
+    FLASH->ACR |= 0b010;                         //2 wait state for 100 MHz
+    RCC->CR |= (1 << 16);                        //Activate external clock (HSE: 8 MHz)
+    while ((RCC->CR & (1 << 17)) == 0);          //Wait until HSE is ready
     
+    //Configuration of PLL
     RCC->PLLCFGR |= (1 << 22);                  //PLL source is HSE
     
-    RCC->PLLCFGR &= ~0b11111;                   //Reset bits 4..0, then set PLL-M: VCO input frequency = PLL input clock frequency / PLLM with 2 ≤ PLLM ≤ 63
-    RCC->PLLCFGR |= 20;                         // -> f.VCO.in = 25MHz / 20 = 1.25MHz
+                                                //Set PLLM
+    RCC->PLLCFGR &= ~0x3F;                      //1st Reset bits
+    RCC->PLLCFGR |= 20;                         //2nd define VCO input frequency = PLL input clock frequency (f.HSE) / PLLM with 2 ≤ PLLM ≤ 63 
+                                                //-> f.VCO.in = 25MHz / 20 = 1.25MHz
+                                                                                                
+                                                //Set PLLN: PPLLN defines VCO out frequency
+    RCC->PLLCFGR &= ~0x7FC0;                    //1st Reset bits 14:6
+    RCC->PLLCFGR |= (320 << 6);                 //2nd define f.VCO.out = f.VCO.in * 320 = 400MHz
+     
+                                                //Set PLLP: Main PLL (PLL) division factor for main system clock; Reset Bits 17:16
+    RCC->PLLCFGR &= ~(0b11 << 16);              //Reset bits 17:16
+    RCC->PLLCFGR |= (0x01 << 16);               //f.PLL.output.clock = f.VCO.out / 4 = 100MHz
                                                 
-    RCC->PLLCFGR &= ~(32704 << 6);
-    RCC->PLLCFGR |= 200 << 6;                   //PLL-N: f.VCO.out = f.VCO.in * 200 = 250MHz
-    
-    RCC->PLLCFGR &= ~(0b11 << 16);              //PLL-P: Main PLL (PLL) division factor for main system clock
-                                                //f.PLL.output.clock = f.VCO.out / 2 = 100MHz
-                                                
-    RCC->PLLCFGR &= ~(0b111 << 24);             //Main PLL (PLL) division factor for USB OTG FS, SDIO and 
-                                                //random number generator clocks (f<=48MHz for RNG!, 48MHz for USB)
-    RCC->PLLCFGR |= (4 << 24);                  //PLL-Q: f.VCO.out / 4 = 25MHz
+                                                //Set PLLQ. PLLQ = division factor for USB OTG FS, SDIO and random number generator clocks
+    RCC->PLLCFGR &= ~(0b1111 << 24);            //Reset bits 27:24
+    RCC->PLLCFGR |= (8 << 24);                  //PLL-Q: f.VCO.out / 8 = 25MHz
         
-    RCC->CR |= (1 << 24);                       //Activate PLL (Output: 100 MHz)
-    while ((RCC->CR & (1 << 25)) == 0);         //Wait until PLL is ready
+    RCC->CR |= (1 << 24);                       //Activate PLL, Bit 24
+    while ((RCC->CR & (1 << 25)) == 0);         //Wait until PLL is ready Bit 25
     
-    //Division by 2 of clk signal       
-    RCC->CFGR |= (0b1000 << 4)                  //AHB divider:  /2
+                                                //Division of clock signal for bus system
+    RCC->CFGR |= (0b1001 << 4)                  //AHB divider:  100MHz / 4 = 25 MHz
               | (0b100 << 10)                   //APB1 divider: /2
               | (0b100 << 13);                  //APB2 divider: /2
                
-    RCC->CFGR |= (1 << 1);                      //Switching to PLL clock source
+    RCC->CFGR |= 0b10;                          //Switching to PLL clock source
     
     while(1)
     {

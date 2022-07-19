@@ -351,9 +351,9 @@ int main(void)
     RCC->APB2ENR |= (1 << 8);	                    //Enable ADC1 clock (Bit8) 
     ADC1->CR1 &= ~(1 << 8);			                //SCAN mode disabled (Bit8)
 	ADC1->CR1 &= ~(3 << 24);				        //12bit resolution (Bit24,25 0b00)
-	ADC1->SQR1 |= (1 << 20);                        //Set number of conversions projected (L[3:0] 0b0001)
+	ADC1->SQR1 &= ~(0x0F << 20);                    //Set number of conversions projected (L[3:0] 0b0000)
 	ADC1->SQR3 &= ~(0x3FFFFFFF);	                //Clears whole 1st 30bits in register
-	ADC1->SQR3 |= (8 << 0);			                //First conversion in regular sequence: PB0 as ADC1_In8
+	ADC1->SQR3 |= (8 << 0);			                //First conversion in regular sequence: PB0 as ADC1_8
     ADC1->CR2 &= ~(1 << 1);			                //Single conversion
 	ADC1->CR2 &= ~(1 << 11);			            //Right alignment of data bits  bit12....bit0
 	ADC1->SMPR2 |= (7 << 0);	 		            //Sampling rate 480 cycles. 16MHz bus clock for ADC. 1/16MHz = 62.5ns. 480*62.5ns=30us
